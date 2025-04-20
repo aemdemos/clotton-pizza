@@ -45,6 +45,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         scores.value,
         scores.delivery,
         scores.boxDesign
+        scores.dayAfter
       ];
 
       values.forEach((score, i) => {
@@ -195,6 +196,7 @@ function sendScoresToWorker() {
         value: parseInt(cells[4].dataset.score || 0),
         delivery: parseInt(cells[5].dataset.score || 0),
         boxDesign: parseInt(cells[6].dataset.score || 0),
+        dayAfter: parseInt(cells[6].dataset.score || 0),
       }
     });
   });
