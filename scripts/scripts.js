@@ -172,7 +172,7 @@ async function submitScores() {
   });
 
   try {
-    const res = await fetch('https://script.google.com/macros/s/AKfycbzDTeGgMZcjQvArhhUkdTQnQ91JL15iJquXXdaSUGho8V-sakZG4rbW_pFkeTCA_qMY/exec', {
+    const res = await fetch('https://script.google.com/macros/s/AKfycbwyUET1HQGp6F15rs_pJYtUcd7dsbXVrcvPz8B1SRaJOZ4ky0y-kv5dqB-E6rSTNq7f/exec', {
       method: 'POST',
       body: JSON.stringify({ rows }),
       headers: { 'Content-Type': 'application/json' }
