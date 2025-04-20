@@ -12,7 +12,7 @@ import {
 } from './aem.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
-  const res = await fetch('https://pizza-rater.chrislotton.workers.dev/api/results');
+  const res = await fetch('https://pizza-grader.chrislotton.workers.dev/api/results');
   const latestScores = await res.json();
 
   // Map pizza names to scores for easy lookup
@@ -191,7 +191,7 @@ function sendScoresToWorker() {
     });
   });
 
-  fetch('https://pizza-rater.chrislotton.workers.dev/api/save', {
+  fetch('https://pizza-grader.chrislotton.workers.dev/api/save', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
