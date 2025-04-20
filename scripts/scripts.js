@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         scores.crust,
         scores.value,
         scores.delivery,
-        scores.boxDesign
+        scores.boxDesign,
         scores.dayAfter
       ];
 
