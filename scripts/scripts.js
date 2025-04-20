@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       cell.setAttribute('data-score', newScore);
       updateCellDisplay(cell, newScore);
+      sendScoresToGoogleSheet()
       debounceSubmit();
     });
   });
@@ -151,37 +152,34 @@ async function loadPage() {
 
 let debounceTimeout;
 
-async function submitScores() {
-  const rows = Array.from(document.querySelectorAll('#pizzaTable tbody tr')).map(tr => {
-    const img = tr.querySelector('img');
-    const pizzaName = img ? img.alt : 'Unknown';
+function sendScoresToGoogleSheet() {
+  const rows = [];
+  document.querySelectorAll('#pizzaTable tbody tr').forEach(tr => {
+    const pizza = tr.querySelector('img')?.alt || 'Unknown';
     const cells = tr.querySelectorAll('.score-cell');
-
-    return {
-      pizza: pizzaName,
+    rows.push({
+      pizza,
       scores: {
-        sauce: cells[0]?.getAttribute('data-score') || 0,
-        cheese: cells[1]?.getAttribute('data-score') || 0,
-        toppings: cells[2]?.getAttribute('data-score') || 0,
-        crust: cells[3]?.getAttribute('data-score') || 0,
-        value: cells[4]?.getAttribute('data-score') || 0,
-        delivery: cells[5]?.getAttribute('data-score') || 0,
-        boxDesign: cells[6]?.getAttribute('data-score') || 0,
+        sauce: parseInt(cells[0].dataset.score || 0),
+        cheese: parseInt(cells[1].dataset.score || 0),
+        toppings: parseInt(cells[2].dataset.score || 0),
+        crust: parseInt(cells[3].dataset.score || 0),
+        value: parseInt(cells[4].dataset.score || 0),
+        delivery: parseInt(cells[5].dataset.score || 0),
+        boxDesign: parseInt(cells[6].dataset.score || 0),
       }
-    };
+    });
   });
 
-  try {
-    const res = await fetch('https://script.google.com/macros/s/AKfycbwyUET1HQGp6F15rs_pJYtUcd7dsbXVrcvPz8B1SRaJOZ4ky0y-kv5dqB-E6rSTNq7f/exec', {
-      method: 'POST',
-      body: JSON.stringify({ rows }),
-      headers: { 'Content-Type': 'application/json' }
-    });
-
-    if (!res.ok) console.warn('Auto-save failed.');
-  } catch (err) {
-    console.error('Auto-save error:', err);
-  }
+  fetch('https://script.google.com/macros/s/AKfycbwyUET1HQGp6F15rs_pJYtUcd7dsbXVrcvPz8B1SRaJOZ4ky0y-kv5dqB-E6rSTNq7f/exec', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ rows })
+  }).then(res => {
+    console.log('Saved:', res.status);
+  }).catch(err => console.error('Error saving:', err));
 }
 
 function debounceSubmit() {
