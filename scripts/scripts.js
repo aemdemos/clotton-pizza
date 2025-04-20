@@ -151,7 +151,7 @@ async function loadPage() {
 
 let debounceTimeout;
 
-function sendScoresToGoogleSheet() {
+function sendScoresToWorker() {
   const rows = [];
   document.querySelectorAll('#pizzaTable tbody tr').forEach(tr => {
     const pizza = tr.querySelector('img')?.alt || 'Unknown';
@@ -170,7 +170,7 @@ function sendScoresToGoogleSheet() {
     });
   });
 
-  fetch('https://script.google.com/macros/s/AKfycbwyUET1HQGp6F15rs_pJYtUcd7dsbXVrcvPz8B1SRaJOZ4ky0y-kv5dqB-E6rSTNq7f/exec', {
+  fetch('https://pizza-rater.chrislotton.workers.dev/api/save', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -184,7 +184,7 @@ function sendScoresToGoogleSheet() {
 function debounceSubmit() {
   clearTimeout(debounceTimeout);
   debounceTimeout = setTimeout(() => {
-    sendScoresToGoogleSheet();
+    sendScoresToWorker();
   }, 1000); // Save 1s after last interaction
 }
 
