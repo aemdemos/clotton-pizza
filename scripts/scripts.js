@@ -210,4 +210,11 @@ function sendScoresToWorker() {
   }).catch(err => console.error('Error saving:', err));
 }
 
+function debounceSubmit() {
+  clearTimeout(debounceTimeout);
+  debounceTimeout = setTimeout(() => {
+    sendScoresToWorker();
+  }, 1000); // Save 1s after last interaction
+}
+
 loadPage();
