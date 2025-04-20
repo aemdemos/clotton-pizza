@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       cell.setAttribute('data-score', newScore);
       updateCellDisplay(cell, newScore);
+      debounceSubmit();
     });
   });
 
@@ -142,12 +143,52 @@ function loadDelayed() {
   // load anything that can be postponed to the latest here
 }
 
-
-
 async function loadPage() {
   await loadEager(document);
   await loadLazy(document);
   loadDelayed();
+}
+
+let debounceTimeout;
+
+async function submitScores() {
+  const rows = Array.from(document.querySelectorAll('#pizzaTable tbody tr')).map(tr => {
+    const img = tr.querySelector('img');
+    const pizzaName = img ? img.alt : 'Unknown';
+    const cells = tr.querySelectorAll('.score-cell');
+
+    return {
+      pizza: pizzaName,
+      scores: {
+        sauce: cells[0]?.getAttribute('data-score') || 0,
+        cheese: cells[1]?.getAttribute('data-score') || 0,
+        toppings: cells[2]?.getAttribute('data-score') || 0,
+        crust: cells[3]?.getAttribute('data-score') || 0,
+        value: cells[4]?.getAttribute('data-score') || 0,
+        delivery: cells[5]?.getAttribute('data-score') || 0,
+        boxDesign: cells[6]?.getAttribute('data-score') || 0,
+      }
+    };
+  });
+
+  try {
+    const res = await fetch('https://script.google.com/macros/s/AKfycbz7e3DChDouBLe9wr-SKdsO7e4LjNM_aZ8QCVnnTYLxX7kRSeCwqVhxQhMd8Btxs6F-/exec', {
+      method: 'POST',
+      body: JSON.stringify({ rows }),
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+    if (!res.ok) console.warn('Auto-save failed.');
+  } catch (err) {
+    console.error('Auto-save error:', err);
+  }
+}
+
+function debounceSubmit() {
+  clearTimeout(debounceTimeout);
+  debounceTimeout = setTimeout(() => {
+    submitScores();
+  }, 1000); // Save 1s after last interaction
 }
 
 loadPage();
