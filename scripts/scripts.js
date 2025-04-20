@@ -24,7 +24,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       cell.setAttribute('data-score', newScore);
       updateCellDisplay(cell, newScore);
-      sendScoresToGoogleSheet()
       debounceSubmit();
     });
   });
@@ -185,7 +184,7 @@ function sendScoresToGoogleSheet() {
 function debounceSubmit() {
   clearTimeout(debounceTimeout);
   debounceTimeout = setTimeout(() => {
-    submitScores();
+    sendScoresToGoogleSheet();
   }, 1000); // Save 1s after last interaction
 }
 
