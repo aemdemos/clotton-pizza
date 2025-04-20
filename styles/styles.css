@@ -255,3 +255,56 @@ main .section.highlight {
   margin: 0;
   padding: 40px 0;
 }
+
+/* styles.css */
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+th, td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+thead th {
+    position: sticky;
+    top: 0;
+    background-color: #f4f4f4;
+    z-index: 2;
+}
+
+.logo-cell {
+    position: sticky;
+    left: 0;
+    background-color: #fff;
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    height: 100px;
+}
+
+.pizza-slice {
+    display: inline-block;
+    width: 30px; /* Adjust based on slice size */
+    height: 30px;
+    background-image: url('../icons/pizza-slice.png'); /* Replace with actual slice image */
+    background-size: cover;
+    margin: 2px;
+}
+
+.jimspizza {
+    height: 100px;
+}
+
+.pizza-241 {
+    height: 80px;
+}

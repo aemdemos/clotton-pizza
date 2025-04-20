@@ -8,10 +8,34 @@ import {
   decorateBlocks,
   decorateTemplateAndTheme,
   waitForFirstImage,
-  loadSection,
-  loadSections,
   loadCSS,
 } from './aem.js';
+
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.score-cell').forEach(cell => {
+    cell.addEventListener('click', () => {
+      let currentScore = parseInt(cell.getAttribute('data-score'));
+      let newScore;
+      if (currentScore == 5) {
+        newScore = 0;
+      } else {
+        newScore = (currentScore % 5) + 1; // Cycle through 1-5
+      }
+      cell.setAttribute('data-score', newScore);
+      updateCellDisplay(cell, newScore);
+    });
+  });
+
+  function updateCellDisplay(cell, score) {
+    cell.innerHTML = ''; // Clear existing slices
+    for (let i = 0; i < score; i++) {
+      let slice = document.createElement('div');
+      slice.classList.add('pizza-slice');
+      cell.appendChild(slice);
+    }
+  }
+});
 
 /**
  * Builds hero block and prepends to main in a new section.
@@ -78,7 +102,6 @@ async function loadEager(doc) {
   if (main) {
     decorateMain(main);
     document.body.classList.add('appear');
-    await loadSection(main.querySelector('.section'), waitForFirstImage);
   }
 
   try {
@@ -97,7 +120,6 @@ async function loadEager(doc) {
  */
 async function loadLazy(doc) {
   const main = doc.querySelector('main');
-  await loadSections(main);
 
   const { hash } = window.location;
   const element = hash ? doc.getElementById(hash.substring(1)) : false;
@@ -119,6 +141,8 @@ function loadDelayed() {
   window.setTimeout(() => import('./delayed.js'), 3000);
   // load anything that can be postponed to the latest here
 }
+
+
 
 async function loadPage() {
   await loadEager(document);
