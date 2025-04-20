@@ -21,6 +21,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     scoreMap.set(entry.pizza, entry);
   });
 
+  function updateCellDisplay(cell, score) {
+    cell.innerHTML = ''; // Clear existing slices
+    for (let i = 0; i < score; i++) {
+      let slice = document.createElement('div');
+      slice.classList.add('pizza-slice');
+      cell.appendChild(slice);
+    }
+  }
+
   // Loop through rows and update cell displays
   document.querySelectorAll('#pizzaTable tbody tr').forEach(tr => {
     const pizza = tr.querySelector('img')?.alt || 'Unknown';
@@ -57,7 +66,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
 });
-
 
 /**
  * Builds hero block and prepends to main in a new section.
@@ -200,13 +208,6 @@ function sendScoresToWorker() {
   }).then(res => {
     console.log('Saved:', res.status);
   }).catch(err => console.error('Error saving:', err));
-}
-
-function debounceSubmit() {
-  clearTimeout(debounceTimeout);
-  debounceTimeout = setTimeout(() => {
-    sendScoresToWorker();
-  }, 1000); // Save 1s after last interaction
 }
 
 loadPage();
