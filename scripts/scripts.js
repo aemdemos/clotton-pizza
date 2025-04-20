@@ -11,32 +11,53 @@ import {
   loadCSS,
 } from './aem.js';
 
+document.addEventListener('DOMContentLoaded', async () => {
+  const res = await fetch('https://pizza-rater.chrislotton.workers.dev/api/results');
+  const latestScores = await res.json();
 
-document.addEventListener('DOMContentLoaded', () => {
+  // Map pizza names to scores for easy lookup
+  const scoreMap = new Map();
+  latestScores.forEach(entry => {
+    scoreMap.set(entry.pizza, entry);
+  });
+
+  // Loop through rows and update cell displays
+  document.querySelectorAll('#pizzaTable tbody tr').forEach(tr => {
+    const pizza = tr.querySelector('img')?.alt || 'Unknown';
+    const cells = tr.querySelectorAll('.score-cell');
+
+    const scores = scoreMap.get(pizza);
+    if (scores) {
+      const values = [
+        scores.sauce,
+        scores.cheese,
+        scores.toppings,
+        scores.crust,
+        scores.value,
+        scores.delivery,
+        scores.boxDesign
+      ];
+
+      values.forEach((score, i) => {
+        const cell = cells[i];
+        cell.setAttribute('data-score', score);
+        updateCellDisplay(cell, score);
+      });
+    }
+  });
+
+  // Now attach click handlers for scoring
   document.querySelectorAll('.score-cell').forEach(cell => {
     cell.addEventListener('click', () => {
       let currentScore = parseInt(cell.getAttribute('data-score'));
-      let newScore;
-      if (currentScore == 5) {
-        newScore = 0;
-      } else {
-        newScore = (currentScore % 5) + 1; // Cycle through 1-5
-      }
+      let newScore = currentScore === 5 ? 0 : (currentScore % 5) + 1;
       cell.setAttribute('data-score', newScore);
       updateCellDisplay(cell, newScore);
       debounceSubmit();
     });
   });
-
-  function updateCellDisplay(cell, score) {
-    cell.innerHTML = ''; // Clear existing slices
-    for (let i = 0; i < score; i++) {
-      let slice = document.createElement('div');
-      slice.classList.add('pizza-slice');
-      cell.appendChild(slice);
-    }
-  }
 });
+
 
 /**
  * Builds hero block and prepends to main in a new section.
