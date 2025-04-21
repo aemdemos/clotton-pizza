@@ -11,27 +11,8 @@ import {
   loadCSS,
 } from './aem.js';
 
-import API_ENDPOINT from './config.js';
-
 document.addEventListener('DOMContentLoaded', async () => {
-
-  // Load saved name
-  const nameInput = document.getElementById('userName');
-  const savedName = localStorage.getItem('pizza-user-name');
-  if (savedName && nameInput) {
-    nameInput.value = savedName;
-  }
-
-// Save name on change
-  nameInput?.addEventListener('input', () => {
-    localStorage.setItem('pizza-user-name', nameInput.value.trim());
-  });
-
-  const url = new URL(`${API_ENDPOINT}/api/results`);
-
-  fetchAndDisplayUserScores(url.href);
-
-  const res = await fetch(url.href);
+  const res = await fetch('https://pizza-grader.chrislotton.workers.dev/api/results');
   const latestScores = await res.json();
 
   // Map pizza names to scores for easy lookup
@@ -63,7 +44,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         scores.crust,
         scores.value,
         scores.delivery,
-        scores.boxDesign,
+        scores.boxDesign
         scores.dayAfter
       ];
 
@@ -198,48 +179,9 @@ async function loadPage() {
   loadDelayed();
 }
 
-async function fetchAndDisplayUserScores(url) {
-  const res = await fetch(url);
-  const data = await res.json();
-
-  const container = document.getElementById('scoreDisplay');
-  container.innerHTML = ''; // clear
-
-  const grouped = {};
-
-  // Group by user
-  data.forEach(entry => {
-    const name = entry.user_name || 'Unknown';
-    if (!grouped[name]) grouped[name] = [];
-    grouped[name].push(entry);
-  });
-
-  for (const [user, entries] of Object.entries(grouped)) {
-    const userDiv = document.createElement('div');
-    userDiv.className = 'user-score-block';
-    const title = document.createElement('h3');
-    title.textContent = user;
-    userDiv.appendChild(title);
-
-    entries.forEach(({ pizza, scores }) => {
-      const row = document.createElement('p');
-      row.textContent = `${pizza}: Sauce ${scores.sauce}, Cheese ${scores.cheese}, ...`;
-      userDiv.appendChild(row);
-    });
-
-    container.appendChild(userDiv);
-  }
-}
-
 let debounceTimeout;
 
-function sendScoresToWorker(url) {
-  const userName = document.getElementById('userName')?.value?.trim();
-  if (!userName) {
-    alert('Please enter your name before scoring.');
-    return;
-  }
-
+function sendScoresToWorker() {
   const rows = [];
   document.querySelectorAll('#pizzaTable tbody tr').forEach(tr => {
     const pizza = tr.querySelector('img')?.alt || 'Unknown';
@@ -254,26 +196,27 @@ function sendScoresToWorker(url) {
         value: parseInt(cells[4].dataset.score || 0),
         delivery: parseInt(cells[5].dataset.score || 0),
         boxDesign: parseInt(cells[6].dataset.score || 0),
+        dayAfter: parseInt(cells[6].dataset.score || 0),
       }
     });
   });
 
-  fetch(url, {
+  fetch('https://pizza-grader.chrislotton.workers.dev/api/save', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ userName, rows })
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ rows })
   }).then(res => {
     console.log('Saved:', res.status);
   }).catch(err => console.error('Error saving:', err));
 }
 
-
 function debounceSubmit() {
   clearTimeout(debounceTimeout);
   debounceTimeout = setTimeout(() => {
-    const url = new URL(`${API_ENDPOINT}/api/submit`);
-    sendScoresToWorker(url.href);
-  }, 500);
+    sendScoresToWorker();
+  }, 1000); // Save 1s after last interaction
 }
 
 loadPage();
