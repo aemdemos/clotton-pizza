@@ -11,6 +11,8 @@ import {
   loadCSS,
 } from './aem.js';
 
+import API_ENDPOINT from './config.js';
+
 document.addEventListener('DOMContentLoaded', async () => {
 
   // Load saved name
@@ -25,10 +27,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     localStorage.setItem('pizza-user-name', nameInput.value.trim());
   });
 
-  fetchAndDisplayUserScores();
+  const url = new URL(`${API_ENDPOINT}/api/results`);
 
+  fetchAndDisplayUserScores(url.href);
 
-  const res = await fetch('https://pizza-grader.chrislotton.workers.dev/api/results');
+  const res = await fetch(url.href);
   const latestScores = await res.json();
 
   // Map pizza names to scores for easy lookup
@@ -195,8 +198,8 @@ async function loadPage() {
   loadDelayed();
 }
 
-async function fetchAndDisplayUserScores() {
-  const res = await fetch('https://pizza-grader.chrislotton.workers.dev/api/results');
+async function fetchAndDisplayUserScores(url) {
+  const res = await fetch(url);
   const data = await res.json();
 
   const container = document.getElementById('scoreDisplay');
@@ -230,7 +233,7 @@ async function fetchAndDisplayUserScores() {
 
 let debounceTimeout;
 
-function sendScoresToWorker() {
+function sendScoresToWorker(url) {
   const userName = document.getElementById('userName')?.value?.trim();
   if (!userName) {
     alert('Please enter your name before scoring.');
@@ -255,7 +258,7 @@ function sendScoresToWorker() {
     });
   });
 
-  fetch('https://pizza-grader.chrislotton.workers.dev/api/submit', {
+  fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ userName, rows })
@@ -268,8 +271,9 @@ function sendScoresToWorker() {
 function debounceSubmit() {
   clearTimeout(debounceTimeout);
   debounceTimeout = setTimeout(() => {
-    sendScoresToWorker();
-  }, 1000); // Save 1s after last interaction
+    const url = new URL(`${API_ENDPOINT}/api/submit`);
+    sendScoresToWorker(url.href);
+  }, 500);
 }
 
 loadPage();
